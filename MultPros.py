@@ -1,36 +1,38 @@
-from multiprocessing import Process, Manager, Lock
-
+import multiprocessing
 
 class WarehouseManager:
-
     def __init__(self):
-        self.data = Manager().dict()
-        self.lock = Lock()
-
-    def run(self, requests):
-        all_process = []
-        for request in requests:
-            process = Process(target=self.process_request, args=(request,))
-            all_process.append(process)
-            process.start()
-
-        for process in all_process:
-            process.join()
+        self.data = multiprocessing.Manager().dict()
 
     def process_request(self, request):
-        with self.lock:
-            product, action, quantity = request
-            if action == "receipt":
-                if product in self.data:
-                    self.data[product] += quantity
-                else:
-                    self.data[product] = quantity
-            elif action == "shipment":
-                if product in self.data and self.data[product] >= quantity:
-                    self.data[product] -= quantity
+        product, action, quantity = request
+        if action == "receipt":
+            if product in self.data:
+                self.data[product] += quantity
+            else:
+                self.data[product] = quantity
+        elif action == "shipment":
+            if product in self.data:
+                self.data[product] -= quantity
+                if self.data[product] < 0:
+                    self.data[product] = 0
 
+    def process_request_wrapper(self, request):
+        p = multiprocessing.Process(target=self.process_request, args=(request,))
+        p.start()
+        p.join()
 
-if __name__ == '__main__':
+    def run(self, requests):
+        processes = []
+        for request in requests:
+            p = multiprocessing.Process(target=self.process_request_wrapper, args=(request,))
+            processes.append(p)
+            p.start()
+
+        for p in processes:
+            p.join()
+
+if __name__ == "__main__":
     # Создаем менеджера склада
     manager = WarehouseManager()
 
@@ -38,13 +40,13 @@ if __name__ == '__main__':
     requests = [
         ("product1", "receipt", 100),
         ("product2", "receipt", 150),
-        ("product1", "shipment", 40),
-        ("product3", "receipt", 220),
-        ("product2", "shipment", 60)
+        ("product1", "shipment", 30),
+        ("product3", "receipt", 250),
+        ("product2", "shipment", 70)
     ]
 
     # Запускаем обработку запросов
     manager.run(requests)
 
     # Выводим обновленные данные о складских запасах
-    print(manager.data, flush=True)
+    print(manager.data)
