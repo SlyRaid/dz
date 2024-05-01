@@ -17,15 +17,15 @@ for i in tr:
     markcaps.append(market_cap[1:])
     markcaps_int.append(int(market_cap[1:].replace(',', '')))
 
-# data_file_name = datetime.datetime.now().strftime("%H.%M %d.%m.%Y") + '.csv'
-# with open(data_file_name, mode='w', newline='', encoding='utf-8') as file:
-#     writer = csv.writer(file, delimiter=' ')
-#     writer.writerow(['Name', 'MC', 'MP'])
-#     count = 0
-#     for row in range(len(all_names)):
-#         writer.writerow([all_names[count], markcaps[count], f'{round(markcaps_int[count] / sum(markcaps_int) * 100)}%'])
-#         count += 1
-count = 0
-for row in range(len(all_names)):
-    print(count + 1, [all_names[count], markcaps[count], f'{round(markcaps_int[count] / sum(markcaps_int) * 100)}%'])
-    count += 1
+data_file_name = datetime.datetime.now().strftime("%H.%M %d.%m.%Y") + '.csv'
+with open(data_file_name, mode='w', newline='', encoding='utf-8') as file:
+    writer = csv.writer(file, delimiter=' ')
+    writer.writerow(['Name', 'MC', 'MP'])
+    count = 0
+    for row in range(len(all_names)):
+        writer.writerow([all_names[count], markcaps[count], f'{round(markcaps_int[count] / sum(markcaps_int) * 100)}%'])
+        count += 1
+# count = 0
+# for row in range(len(all_names)):
+#     print(count + 1, [all_names[count], markcaps[count], f'{round(markcaps_int[count] / sum(markcaps_int) * 100)}%'])
+#     count += 1
